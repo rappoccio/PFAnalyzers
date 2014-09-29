@@ -32,7 +32,7 @@ process.TFileService = cms.Service("TFileService",
 
 
 
-process.load('Analysis.PionPFAnalyzer.pionPFAnalyzer_cfi')
+process.load('Analysis.PFAnalyzers.pionPFAnalyzer_cfi')
 
 process.p = cms.Path(
     process.pionPFAnalyzer

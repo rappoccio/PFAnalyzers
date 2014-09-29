@@ -1,7 +1,7 @@
 <export>
 </export>
-<library   name="AnalysisPionPFAnalyzer_plugins" file="*.cc">
-  <use   name="Analysis/PionPFAnalyzer"/>
+<library   name="AnalysisPFAnalyzers_plugins" file="*.cc">
+  <use   name="Analysis/PFAnalyzers"/>
   <use   name="FWCore/Framework"/>
   <use   name="FWCore/ParameterSet"/>
   <use   name="FWCore/MessageLogger"/>
