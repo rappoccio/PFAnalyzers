@@ -114,10 +114,11 @@ private:
   float gen_m;
   
 
-  static const int MAXRECHIT = 10000;
-  Int_t layer[MAXRECHIT];
-  float energy[MAXRECHIT];
-  float time[MAXRECHIT];
+  static const int MAXCLUSTER = 10000;
+  Int_t layer[MAXCLUSTER];
+  Int_t depth[MAXCLUSTER];
+  float energy[MAXCLUSTER];
+  float time[MAXCLUSTER];
 
 };
 
@@ -146,10 +147,11 @@ PionPFAnalyzer::PionPFAnalyzer(const edm::ParameterSet& iConfig) :
 
   reco_pt = reco_eta = reco_phi = reco_m = gen_pt = gen_eta = gen_phi = gen_m = 0.0;
   for ( auto & i : layer ) i = 0.0;
+  for ( auto & i : depth ) i = 0.0;
   for ( auto & i : energy ) i = 0.0;
   for ( auto & i : time ) i = 0.0;
 
-  mytree = fs->make<TTree>("pfRecHitTree", "pfRecHitTree");
+  mytree = fs->make<TTree>("pfClusterTree", "pfClusterTree");
   mytree->Branch("reco_pt",&reco_pt,"reco_pt/F");
   mytree->Branch("reco_eta",&reco_eta,"reco_eta/F");
   mytree->Branch("reco_phi",&reco_phi,"reco_phi/F");
@@ -159,6 +161,7 @@ PionPFAnalyzer::PionPFAnalyzer(const edm::ParameterSet& iConfig) :
   mytree->Branch("gen_phi",&gen_phi,"gen_phi/F");
   mytree->Branch("gen_m",&gen_m,"gen_m/F");  
   mytree->Branch("layer",layer,"layer[10000]/I");
+  mytree->Branch("depth",depth,"depth[10000]/I");
   mytree->Branch("energy",energy,"energy[10000]/F");
   mytree->Branch("time",time,"time[10000]/F");
 
@@ -219,7 +222,7 @@ void PionPFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 	    auto pfcands = PFJet.getPFConstituents();
 
-	    int irechit = 0;
+	    int icluster = 0;
 	    // Get the PF cands in the jets
 	    for ( auto const & pfcand : pfcands ) {
 	      // Check if available
@@ -243,25 +246,17 @@ void PionPFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 			reco::PFCluster const * cluster = &*clusterRef;
 			if ( cluster != 0 ) {
 
-			  auto const & recHitFractions = cluster->recHitFractions();
-
-			  for ( auto const & recHitFraction : recHitFractions ) {
-			    //auto const & fraction = recHitFraction.fraction();
-			    auto const & recHitRef = recHitFraction.recHitRef();
-			    if ( recHitRef.isNonnull() && recHitRef.isAvailable() ) {
-
-			      if ( irechit >= MAXRECHIT ) {
-				break;
-			      }
-
-			      layer[irechit] = recHitRef->layer();
-			      energy[irechit] = recHitRef->energy();
-			      time[irechit] = recHitRef->time();
-
-			      ++irechit;
-
-			    }
+			  if ( icluster >= MAXCLUSTER ) {
+			    break;
 			  }
+			  
+			  layer[icluster] = clusterRef->layer();
+			  depth[icluster] = clusterRef->depth();
+			  energy[icluster] = clusterRef->energy();
+			  time[icluster] = clusterRef->time();
+			  
+			  ++icluster;			  
+
 			}
 		      }
 		    }
