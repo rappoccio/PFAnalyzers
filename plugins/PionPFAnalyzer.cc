@@ -98,6 +98,7 @@ private:
 
   double dRMin_;
   edm::InputTag jetSrc_;
+  edm::InputTag clusterSrc_;
   edm::InputTag genSrc_;
 
 
@@ -120,6 +121,12 @@ private:
   float energy[MAXCLUSTER];
   float time[MAXCLUSTER];
 
+
+  Int_t layer_input[MAXCLUSTER];
+  Int_t depth_input[MAXCLUSTER];
+  float energy_input[MAXCLUSTER];
+  float time_input[MAXCLUSTER];
+
 };
 
 //
@@ -137,6 +144,7 @@ using namespace reco;
 PionPFAnalyzer::PionPFAnalyzer(const edm::ParameterSet& iConfig) :
   dRMin_( iConfig.getParameter<double>( "dRMin") ),
   jetSrc_( iConfig.getParameter<edm::InputTag>( "jetSrc") ),
+  clusterSrc_( iConfig.getParameter<edm::InputTag>( "clusterSrc") ),
   genSrc_( iConfig.getParameter<edm::InputTag>( "genSrc") )
 {
    //now do what ever initialization is needed
@@ -151,6 +159,11 @@ PionPFAnalyzer::PionPFAnalyzer(const edm::ParameterSet& iConfig) :
   for ( auto & i : energy ) i = 0.0;
   for ( auto & i : time ) i = 0.0;
 
+  for ( auto & i : layer_input ) i = 0.0;
+  for ( auto & i : depth_input ) i = 0.0;
+  for ( auto & i : energy_input ) i = 0.0;
+  for ( auto & i : time_input ) i = 0.0;
+
   mytree = fs->make<TTree>("pfClusterTree", "pfClusterTree");
   mytree->Branch("reco_pt",&reco_pt,"reco_pt/F");
   mytree->Branch("reco_eta",&reco_eta,"reco_eta/F");
@@ -164,6 +177,11 @@ PionPFAnalyzer::PionPFAnalyzer(const edm::ParameterSet& iConfig) :
   mytree->Branch("depth",depth,"depth[10000]/I");
   mytree->Branch("energy",energy,"energy[10000]/F");
   mytree->Branch("time",time,"time[10000]/F");
+  mytree->Branch("layer_input",layer,"layer_input[10000]/I");
+  mytree->Branch("depth_input",depth,"depth_input[10000]/I");
+  mytree->Branch("energy_input",energy,"energy_input[10000]/F");
+  mytree->Branch("time_input",time,"time_input[10000]/F");
+
 
  }
 
@@ -191,13 +209,39 @@ void PionPFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
    for ( auto & i : layer ) i = 0.0;
    for ( auto & i : energy ) i = 0.0;
    for ( auto & i : time ) i = 0.0;
-   
+   for ( auto & i : layer_input ) i = 0.0;
+   for ( auto & i : energy_input ) i = 0.0;
+   for ( auto & i : time_input ) i = 0.0;   
 
    Handle<reco::PFJetCollection> pfjets;
    iEvent.getByLabel(jetSrc_, pfjets);
 
+   Handle<reco::PFClusterCollection> pfclusters;
+   iEvent.getByLabel(clusterSrc_, pfclusters);
+
    Handle<reco::GenParticleCollection> genParticles;
    iEvent.getByLabel(genSrc_, genParticles);
+
+   // First get the input clusters
+
+   int icluster = 0;
+   for ( auto const & cluster : *pfclusters) {
+
+     if ( icluster >= MAXCLUSTER ) {
+       break;
+     }
+			  
+     layer_input[icluster] = cluster.layer();
+     depth_input[icluster] = cluster.depth();
+     energy_input[icluster] = cluster.energy();
+     time_input[icluster] = cluster.time();
+			  
+     ++icluster;			  
+
+   }
+
+
+   // Then get the clusters on the PFJets
 
    for ( auto const & PFJet : *pfjets) {
 	bool gotit = false;
@@ -222,7 +266,7 @@ void PionPFAnalyzer::analyze(const edm::Event& iEvent, const edm::EventSetup& iS
 
 	    auto pfcands = PFJet.getPFConstituents();
 
-	    int icluster = 0;
+	    icluster = 0;
 	    // Get the PF cands in the jets
 	    for ( auto const & pfcand : pfcands ) {
 	      // Check if available
