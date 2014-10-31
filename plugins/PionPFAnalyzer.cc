@@ -177,10 +177,10 @@ PionPFAnalyzer::PionPFAnalyzer(const edm::ParameterSet& iConfig) :
   mytree->Branch("depth",depth,"depth[10000]/I");
   mytree->Branch("energy",energy,"energy[10000]/F");
   mytree->Branch("time",time,"time[10000]/F");
-  mytree->Branch("layer_input",layer,"layer_input[10000]/I");
-  mytree->Branch("depth_input",depth,"depth_input[10000]/I");
-  mytree->Branch("energy_input",energy,"energy_input[10000]/F");
-  mytree->Branch("time_input",time,"time_input[10000]/F");
+  mytree->Branch("layer_input",layer_input,"layer_input[10000]/I");
+  mytree->Branch("depth_input",depth_input,"depth_input[10000]/I");
+  mytree->Branch("energy_input",energy_input,"energy_input[10000]/F");
+  mytree->Branch("time_input",time_input,"time_input[10000]/F");
 
 
  }
