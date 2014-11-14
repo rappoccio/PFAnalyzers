@@ -28,7 +28,7 @@ process.maxEvents = cms.untracked.PSet(
 # Input source
 process.source = cms.Source("PoolSource",
     secondaryFileNames = cms.untracked.vstring(),
-    fileNames = cms.untracked.vstring('file:/build/grimes/SLHC17_patch2+clean_shashlik_timing/step3_13839_aged_vHCalDepthClustering_noOOT.root')
+    fileNames = cms.untracked.vstring('file:/eos/uscms/store/user/benwu/HcalSample/RECO/SinglePiE20HCAL_0PU_RECO.root')
 )
 
 process.options = cms.untracked.PSet(
@@ -57,7 +57,7 @@ process.RECOSIMoutput = cms.OutputModule("PoolOutputModule",
 
 
 process.TFileService = cms.Service("TFileService",
-                                   fileName = cms.string('pionPFAnalyzer_step3_13839_aged_vHCalDepthClustering_noOOT.root')
+                                   fileName = cms.string('pionPFAnalyzer_SinglePiE20HCAL_0PU_RECO.root')
                                    )
 
 
